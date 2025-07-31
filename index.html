@@ -11,8 +11,9 @@
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
-            justify-content: center;
-            align-items: flex-start; /* Alinea al inicio para permitir scroll si el contenido es largo */
+            flex-direction: column; /* Changed to column to stack container and footer */
+            justify-content: space-between; /* Distribute space between container and footer */
+            align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
@@ -22,7 +23,6 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat; /* Asegura que la imagen no se repita */
-            animation: moveBackground 60s linear infinite; /* Animación de movimiento lento */
             background-attachment: fixed; /* Mantiene la imagen fija al hacer scroll */
             overflow-x: hidden; /* Prevent horizontal scrollbars */
         }
@@ -41,6 +41,8 @@
             opacity: 0; /* Initially invisible */
             transform: translateY(20px); /* Initial displacement */
             animation: fadeInUp 0.5s ease-out forwards; /* Fade-in animation */
+            flex-grow: 1; /* Allow container to grow and push footer down */
+            margin-bottom: 20px; /* Space between container and footer */
         }
 
         /* Keyframes for fade-in up animation */
@@ -247,7 +249,7 @@
         </div>
 
         <div class="form-section">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Declaración de Conocimiento y Aceptación</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Declaración de Conocimiento y Aceptación</h2>
             <form id="acceptanceForm">
                 <div class="form-group">
                     <label for="fullName">Nombre completo:</label>
@@ -286,7 +288,7 @@
                     <label for="acceptTerms">He leído y acepto el Código de Ética.</label>
                 </div>
                 <button type="submit" class="submit-button rounded-lg flex items-center justify-center">
-                    Enviar Aceptación
+                    Enviar
                     <div id="loadingSpinner" class="loading-spinner"></div>
                 </button>
             </form>
@@ -299,6 +301,11 @@
         <p id="messageContent"></p>
         <button id="messageBoxClose">Cerrar</button>
     </div>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-gray-700 text-sm">
+        Copyright © 2025 - Desarrollado por Departamento de Sistemas
+    </footer>
 
     <script>
         // Get references to elements
@@ -409,7 +416,7 @@
             } else {
                 submitButton.disabled = false;
                 loadingSpinner.style.display = 'none';
-                submitButton.textContent = 'Enviar Aceptación';
+                submitButton.textContent = 'Enviar'; // Updated button text
             }
         }
 
