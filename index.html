@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Estilos personalizados para el fondo y el contenedor */
+        /* Custom styles for the background and container */
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
@@ -17,38 +17,33 @@
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
-            /* Parámetros de fondo */
-            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://lh3.googleusercontent.com/p/AF1QipNbxzsjQ6wv1k2l0QobqY_fGWvMFs4Qg1UisoLC=s1360-w1360-h1020'); /* Degradado + imagen de fondo */
+            /* Background parameters */
+            background-image: url('Cargo-Air.png'); /* Nueva imagen de fondo */
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat; /* Asegura que la imagen no se repita */
             animation: moveBackground 60s linear infinite; /* Animación de movimiento lento */
-            overflow-x: hidden; /* Previene barras de desplazamiento horizontales */
+            background-attachment: fixed; /* Mantiene la imagen fija al hacer scroll */
+            overflow-x: hidden; /* Prevent horizontal scrollbars */
         }
 
-        /* Keyframes para la animación de movimiento de fondo */
-        @keyframes moveBackground {
-            0% { background-position: center center; }
-            25% { background-position: top right; }
-            50% { background-position: bottom left; }
-            75% { background-position: top left; }
-            100% { background-position: center center; }
-        }
+        /* No animation for static background image */
 
         .container {
-            background-color: rgba(255, 255, 255, 0.9); /* Fondo semi-transparente */
+            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent background */
             border-radius: 12px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra para el contenedor */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Container shadow */
             width: 100%;
             max-width: 1200px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            opacity: 0; /* Inicialmente invisible */
-            transform: translateY(20px); /* Desplazamiento inicial */
-            animation: fadeInUp 0.5s ease-out forwards; /* Animación de aparición */
+            opacity: 0; /* Initially invisible */
+            transform: translateY(20px); /* Initial displacement */
+            animation: fadeInUp 0.5s ease-out forwards; /* Fade-in animation */
         }
 
-        /* Keyframes para la animación de aparición */
+        /* Keyframes for fade-in up animation */
         @keyframes fadeInUp {
             to {
                 opacity: 1;
@@ -66,14 +61,14 @@
         }
         .pdf-viewer {
             width: 100%;
-            height: 700px; /* Ajusta la altura según sea necesario */
+            height: 700px; /* Adjust height as needed */
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
         .form-section {
             padding: 40px;
-            background-color: rgba(249, 250, 251, 0.9); /* Fondo semi-transparente para la sección del formulario */
+            background-color: rgba(249, 250, 251, 0.9); /* Semi-transparent background for form section */
             border-top: 1px solid #e5e7eb;
         }
         .form-group {
@@ -86,7 +81,8 @@
             color: #374151;
         }
         .form-group input[type="text"],
-        .form-group input[type="date"] {
+        .form-group input[type="date"],
+        .form-group select { /* Added select for styling */
             width: 100%;
             padding: 12px;
             border: 1px solid #d1d5db;
@@ -96,7 +92,8 @@
             transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
         .form-group input[type="text"]:focus,
-        .form-group input[type="date"]:focus {
+        .form-group input[type="date"]:focus,
+        .form-group select:focus { /* Added select for focus styling */
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
             outline: none;
@@ -106,7 +103,7 @@
             border-radius: 8px;
             background-color: #ffffff;
             cursor: crosshair;
-            touch-action: none; /* Previene el scroll en dispositivos táctiles */
+            touch-action: none; /* Prevents scrolling on touch devices */
         }
         .checkbox-group {
             display: flex;
@@ -222,7 +219,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Ajustes responsivos */
+        /* Responsive adjustments */
         @media (min-width: 768px) {
             .container {
                 flex-direction: row;
@@ -244,7 +241,7 @@
         <div class="pdf-viewer-section">
             <h2 class="text-3xl font-bold text-gray-800 mb-6">Código de Ética</h2>
             <div class="pdf-viewer">
-                <!-- El PDF se incrustará aquí. Se asume que "Codigo de Etica 30-7.pdf" está en la misma carpeta. -->
+                <!-- The PDF will be embedded here. Assumes "Codigo de Etica 30-7.pdf" is in the same folder. -->
                 <iframe src="Codigo de Etica 30-7.pdf" width="100%" height="100%" frameborder="0"></iframe>
             </div>
         </div>
@@ -254,11 +251,18 @@
             <form id="acceptanceForm">
                 <div class="form-group">
                     <label for="fullName">Nombre completo:</label>
-                    <input type="text" id="fullName" name="fullName" required class="rounded-lg">
+                    <input type="text" id="fullName" name="fullName" required class="rounded-lg" oninput="this.value = this.value.toUpperCase()">
                 </div>
                 <div class="form-group">
                     <label for="station">Estación:</label>
-                    <input type="text" id="station" name="station" class="rounded-lg">
+                    <select id="station" name="station" required class="rounded-lg">
+                        <option value="">Seleccione una estación</option>
+                        <option value="OP - OFICINA PRINCIPAL">OP - OFICINA PRINCIPAL</option>
+                        <option value="POP - PUERTO PLATA">POP - PUERTO PLATA</option>
+                        <option value="PUJ - PUNTA CANA">PUJ - PUNTA CANA</option>
+                        <option value="SDQ - AEROPUERTO INTERNACIONAL LAS AMÉRICAS">SDQ - AEROPUERTO INTERNACIONAL LAS AMÉRICAS</option>
+                        <option value="STI - SANTIAGO">STI - SANTIAGO</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="employeeNumber">No. Empleado:</label>
@@ -266,7 +270,7 @@
                 </div>
                 <div class="form-group">
                     <label for="cedula">Cédula:</label>
-                    <input type="text" id="cedula" name="cedula" required class="rounded-lg">
+                    <input type="text" id="cedula" name="cedula" required inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="rounded-lg">
                 </div>
                 <div class="form-group">
                     <label for="signature">Firma:</label>
@@ -441,8 +445,8 @@
 
             showLoading(true); // Show loading spinner and disable button
 
-            // --- LÓGICA PARA ENVIAR DATOS A GOOGLE APPS SCRIPT ---
-            // URL de tu Web App de Google Apps Script
+            // --- LOGIC TO SEND DATA TO GOOGLE APPS SCRIPT ---
+            // URL of your Google Apps Script Web App
             const scriptUrl = 'https://script.google.com/macros/s/AKfycbwbtdF2Yath0oCWXI6_4KHX-dRpUxUAhzlgFhYKOKTS_TkXRRXa-pYjyxHTaWuIUP0B/exec'; 
 
             try {
@@ -452,20 +456,20 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(dataToSend),
-                    mode: 'no-cors' // Importante para evitar errores CORS en algunos casos con Apps Script
+                    mode: 'no-cors' // Important to avoid CORS errors in some cases with Apps Script
                 });
 
-                // Apps Script con 'mode: no-cors' siempre devuelve 'ok: true' en el cliente
-                // La respuesta real (éxito/error del script) debe ser manejada dentro del script
-                // y se puede verificar por el estado de la hoja o logs del script.
-                // Aquí, asumimos éxito si la solicitud se envió sin errores de red.
+                // Apps Script with 'mode: no-cors' always returns 'ok: true' on the client
+                // The actual response (script success/failure) must be handled within the script
+                // and can be verified by the sheet status or script logs.
+                // Here, we assume success if the request was sent without network errors.
 
                 showMessage('Envío Exitoso', 'La información ha sido enviada de manera exitosa. Gracias por su aceptación.');
                 
-                // Limpiar el formulario después de un envío exitoso
+                // Clear the form after successful submission
                 form.reset();
                 clearSignature();
-                document.getElementById('acceptTerms').checked = false; // Desmarcar manualmente
+                document.getElementById('acceptTerms').checked = false; // Manually uncheck
 
             } catch (error) {
                 console.error('Error al enviar datos a Google Apps Script:', error);
@@ -473,7 +477,7 @@
             } finally {
                 showLoading(false); // Hide loading spinner and enable button
             }
-            // --- FIN DE LA LÓGICA PARA ENVIAR DATOS A GOOGLE APPS SCRIPT ---
+            // --- END OF LOGIC TO SEND DATA TO GOOGLE APPS SCRIPT ---
         });
 
         // Show message box
