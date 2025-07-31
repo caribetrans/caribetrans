@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Código de Ética y Aceptación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados para el fondo y el contenedor */
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinea al inicio para permitir scroll si el contenido es largo */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Parámetros de fondo */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://lh3.googleusercontent.com/p/AF1QipNbxzsjQ6wv1k2l0QobqY_fGWvMFs4Qg1UisoLC=s1360-w1360-h1020'); /* Degradado + imagen de fondo */
+            background-size: cover;
+            background-position: center;
+            animation: moveBackground 60s linear infinite; /* Animación de movimiento lento */
+            overflow-x: hidden; /* Previene barras de desplazamiento horizontales */
+        }
+
+        /* Keyframes para la animación de movimiento de fondo */
+        @keyframes moveBackground {
+            0% { background-position: center center; }
+            25% { background-position: top right; }
+            50% { background-position: bottom left; }
+            75% { background-position: top left; }
+            100% { background-position: center center; }
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Fondo semi-transparente */
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra para el contenedor */
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0; /* Inicialmente invisible */
+            transform: translateY(20px); /* Desplazamiento inicial */
+            animation: fadeInUp 0.5s ease-out forwards; /* Animación de aparición */
+        }
+
+        /* Keyframes para la animación de aparición */
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pdf-viewer-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .pdf-viewer {
+            width: 100%;
+            height: 700px; /* Ajusta la altura según sea necesario */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        .form-section {
+            padding: 40px;
+            background-color: rgba(249, 250, 251, 0.9); /* Fondo semi-transparente para la sección del formulario */
+            border-top: 1px solid #e5e7eb;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #4b5563;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .form-group input[type="text"]:focus,
+        .form-group input[type="date"]:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            outline: none;
+        }
+        .signature-pad {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: #ffffff;
+            cursor: crosshair;
+            touch-action: none; /* Previene el scroll en dispositivos táctiles */
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            position: relative;
+        }
+        .checkbox-group input[type="checkbox"]:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✔';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+        }
+        .checkbox-group label {
+            font-weight: 500;
+            color: #374151;
+            cursor: pointer;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 14px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .submit-button:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+        }
+        .submit-button:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #e5e7eb;
+        }
+        .message-box h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        .message-box p {
+            font-size: 1rem;
+            color: #4b5563;
+            margin-bottom: 25px;
+        }
+        .message-box button {
+            padding: 10px 25px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .message-box button:hover {
+            background-color: #1d4ed8;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: none; /* Hidden by default */
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Ajustes responsivos */
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+            }
+            .pdf-viewer-section {
+                padding: 40px;
+            }
+            .form-section {
+                width: 400px;
+                flex-shrink: 0;
+                border-top: none;
+                border-left: 1px solid #e5e7eb;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="pdf-viewer-section">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Código de Ética</h2>
+            <div class="pdf-viewer">
+                <!-- El PDF se incrustará aquí. Se asume que "Codigo de Etica 30-7.pdf" está en la misma carpeta. -->
+                <iframe src="Codigo de Etica 30-7.pdf" width="100%" height="100%" frameborder="0"></iframe>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Declaración de Conocimiento y Aceptación</h2>
+            <form id="acceptanceForm">
+                <div class="form-group">
+                    <label for="fullName">Nombre completo:</label>
+                    <input type="text" id="fullName" name="fullName" required class="rounded-lg">
+                </div>
+                <div class="form-group">
+                    <label for="station">Estación:</label>
+                    <input type="text" id="station" name="station" class="rounded-lg">
+                </div>
+                <div class="form-group">
+                    <label for="employeeNumber">No. Empleado:</label>
+                    <input type="text" id="employeeNumber" name="employeeNumber" required class="rounded-lg">
+                </div>
+                <div class="form-group">
+                    <label for="cedula">Cédula:</label>
+                    <input type="text" id="cedula" name="cedula" required class="rounded-lg">
+                </div>
+                <div class="form-group">
+                    <label for="signature">Firma:</label>
+                    <canvas id="signaturePad" class="signature-pad w-full" width="300" height="100"></canvas>
+                    <button type="button" id="clearSignature" class="mt-2 px-4 py-2 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600 transition duration-300">Borrar Firma</button>
+                </div>
+                <div class="form-group">
+                    <label for="date">Fecha:</label>
+                    <input type="date" id="date" name="date" required class="rounded-lg">
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="acceptTerms" name="acceptTerms" required>
+                    <label for="acceptTerms">He leído y acepto el Código de Ética.</label>
+                </div>
+                <button type="submit" class="submit-button rounded-lg flex items-center justify-center">
+                    Enviar Aceptación
+                    <div id="loadingSpinner" class="loading-spinner"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <h3 id="messageTitle"></h3>
+        <p id="messageContent"></p>
+        <button id="messageBoxClose">Cerrar</button>
+    </div>
+
+    <script>
+        // Get references to elements
+        const signaturePadCanvas = document.getElementById('signaturePad');
+        const clearSignatureButton = document.getElementById('clearSignature');
+        const form = document.getElementById('acceptanceForm');
+        const submitButton = form.querySelector('.submit-button');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const messageBox = document.getElementById('messageBox');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageContent = document.getElementById('messageContent');
+        const messageBoxCloseButton = document.getElementById('messageBoxClose');
+
+        // Initialize signature pad
+        const ctx = signaturePadCanvas.getContext('2d');
+        let drawing = false;
+
+        // Set up canvas for high-DPI displays
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            signaturePadCanvas.width = signaturePadCanvas.offsetWidth * ratio;
+            signaturePadCanvas.height = signaturePadCanvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000';
+            clearSignature(); // Clear the canvas after resizing
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // Initial resize
+
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        function getTouchPos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.touches[0].clientX - rect.left,
+                y: evt.touches[0].clientY - rect.top
+            };
+        }
+
+        signaturePadCanvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            const pos = getMousePos(signaturePadCanvas, e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        });
+
+        signaturePadCanvas.addEventListener('mousemove', (e) => {
+            if (!drawing) return;
+            const pos = getMousePos(signaturePadCanvas, e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        });
+
+        signaturePadCanvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.closePath();
+        });
+
+        signaturePadCanvas.addEventListener('mouseleave', () => {
+            drawing = false;
+            ctx.closePath();
+        });
+
+        // Touch events for mobile
+        signaturePadCanvas.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // Prevent scrolling
+            drawing = true;
+            const pos = getTouchPos(signaturePadCanvas, e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        });
+
+        signaturePadCanvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Prevent scrolling
+            if (!drawing) return;
+            const pos = getTouchPos(signaturePadCanvas, e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        });
+
+        signaturePadCanvas.addEventListener('touchend', () => {
+            drawing = false;
+            ctx.closePath();
+        });
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
+            ctx.beginPath(); // Reset path after clearing
+        }
+
+        clearSignatureButton.addEventListener('click', clearSignature);
+
+        // Function to show loading state
+        function showLoading(isLoading) {
+            if (isLoading) {
+                submitButton.disabled = true;
+                loadingSpinner.style.display = 'block';
+                submitButton.textContent = 'Enviando...';
+            } else {
+                submitButton.disabled = false;
+                loadingSpinner.style.display = 'none';
+                submitButton.textContent = 'Enviar Aceptación';
+            }
+        }
+
+        // Handle form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fullName = document.getElementById('fullName').value;
+            const station = document.getElementById('station').value;
+            const employeeNumber = document.getElementById('employeeNumber').value;
+            const cedula = document.getElementById('cedula').value;
+            const date = document.getElementById('date').value;
+            const acceptTerms = document.getElementById('acceptTerms').checked;
+
+            if (!acceptTerms) {
+                showMessage('Error de Validación', 'Debe aceptar que ha leído el Código de Ética para continuar.');
+                return;
+            }
+
+            // Get signature as data URL
+            const signatureDataUrl = signaturePadCanvas.toDataURL('image/png');
+
+            // Data to be sent to Google Apps Script
+            const dataToSend = {
+                fullName,
+                station,
+                employeeNumber,
+                cedula,
+                date,
+                signature: signatureDataUrl, // Base64 encoded image
+                acceptance: acceptTerms ? 'Sí' : 'No' // Convert boolean to string for sheet
+            };
+
+            showLoading(true); // Show loading spinner and disable button
+
+            // --- LÓGICA PARA ENVIAR DATOS A GOOGLE APPS SCRIPT ---
+            // URL de tu Web App de Google Apps Script
+            const scriptUrl = 'https://script.google.com/macros/s/AKfycbwbtdF2Yath0oCWXI6_4KHX-dRpUxUAhzlgFhYKOKTS_TkXRRXa-pYjyxHTaWuIUP0B/exec'; 
+
+            try {
+                const response = await fetch(scriptUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(dataToSend),
+                    mode: 'no-cors' // Importante para evitar errores CORS en algunos casos con Apps Script
+                });
+
+                // Apps Script con 'mode: no-cors' siempre devuelve 'ok: true' en el cliente
+                // La respuesta real (éxito/error del script) debe ser manejada dentro del script
+                // y se puede verificar por el estado de la hoja o logs del script.
+                // Aquí, asumimos éxito si la solicitud se envió sin errores de red.
+
+                showMessage('Envío Exitoso', 'La información ha sido enviada de manera exitosa. Gracias por su aceptación.');
+                
+                // Limpiar el formulario después de un envío exitoso
+                form.reset();
+                clearSignature();
+                document.getElementById('acceptTerms').checked = false; // Desmarcar manualmente
+
+            } catch (error) {
+                console.error('Error al enviar datos a Google Apps Script:', error);
+                showMessage('Error de Conexión', 'No se pudo conectar con el servicio. Por favor, inténtelo de nuevo más tarde.');
+            } finally {
+                showLoading(false); // Hide loading spinner and enable button
+            }
+            // --- FIN DE LA LÓGICA PARA ENVIAR DATOS A GOOGLE APPS SCRIPT ---
+        });
+
+        // Show message box
+        function showMessage(title, content) {
+            messageTitle.textContent = title;
+            messageContent.textContent = content;
+            messageBox.style.display = 'flex';
+        }
+
+        // Close message box
+        messageBoxCloseButton.addEventListener('click', () => {
+            messageBox.style.display = 'none';
+        });
+
+        // Set current date as default for the date input
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+            const day = String(today.getDate()).padStart(2, '0');
+            document.getElementById('date').value = `${year}-${month}-${day}`;
+        });
+
+    </script>
+</body>
+</html>
