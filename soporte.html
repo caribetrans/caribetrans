@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Soportes</title>
+    <!-- Tailwind CSS CDN para estilos rápidos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librería SheetJS para leer y escribir archivos Excel (XLSX) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <style>
+        /* Fuente Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Un color de fondo suave */
+        }
+        /* Estilos personalizados para la tabla si es necesario */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #e2e8f0; /* Color de borde de tabla */
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #cbd5e1; /* Color de fondo para encabezados */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <div class="max-w-7xl mx-auto bg-white p-6 rounded-lg shadow-xl">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Registro de Soportes de Departamento</h1>
+
+        <!-- Contenedor para mensajes de validación y estado de Google Sheet -->
+        <div id="statusMessage" class="px-4 py-3 rounded relative mb-4 hidden" role="alert">
+            <strong class="font-bold" id="statusMessageTitle"></strong>
+            <span class="block sm:inline" id="statusMessageText"></span>
+        </div>
+
+        <!-- Formulario para registrar soportes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div>
+                <label for="nombreSoporte" class="block text-sm font-medium text-gray-700">Nombre Soporte <span class="text-red-500">*</span></label>
+                <select id="nombreSoporte" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Seleccione un usuario</option>
+                    <option value="Giancarlo Marte">Giancarlo Marte</option>
+                    <option value="Mildred Soto">Mildred Soto</option>
+                    <option value="Starling Bernard">Starling Bernard</option>
+                    <option value="Yukeiry Luciano">Yukeiry Luciano</option>
+                    <option value="Braian Alvarez">Braian Alvarez</option>
+                </select>
+            </div>
+            <div>
+                <label for="solicitante" class="block text-sm font-medium text-gray-700">Solicitante</label>
+                <input type="text" id="solicitante" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Ej: Ingresar nombre">
+            </div>
+            <div>
+                <label for="usuario" class="block text-sm font-medium text-gray-700">Usuario</label>
+                <input type="text" id="usuario" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Ej: Ingresar nombre">
+            </div>
+            <div>
+                <label for="tipo" class="block text-sm font-medium text-gray-700">Tipo</label>
+                <input type="text" id="tipo" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Ej: SAP">
+            </div>
+            <div>
+                <label for="fechaSolicitud" class="block text-sm font-medium text-gray-700">Fecha Solicitud <span class="text-red-500">*</span></label>
+                <input type="date" id="fechaSolicitud" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="horaSolicitud" class="block text-sm font-medium text-gray-700">Hora Solicitud <span class="text-red-500">*</span></label>
+                <input type="time" id="horaSolicitud" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="fechaSolucion" class="block text-sm font-medium text-gray-700">Fecha Solución <span class="text-red-500">*</span></label>
+                <input type="date" id="fechaSolucion" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+                <label for="horaSolucion" class="block text-sm font-medium text-gray-700">Hora Solucion <span class="text-red-500">*</span></label>
+                <input type="time" id="horaSolucion" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                <label for="comentarios" class="block text-sm font-medium text-gray-700">Comentarios</label>
+                <textarea id="comentarios" rows="3" class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Detalles adicionales del soporte..."></textarea>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4 mb-8">
+            <button id="mainActionButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                Registrar Soporte
+            </button>
+            <button id="cancelEditBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 hidden">
+                Cancelar Edición
+            </button>
+            <button id="exportarBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                Exportar a Excel (XLSX)
+            </button>
+            <button id="limpiarBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                Limpiar Formulario
+            </button>
+        </div>
+
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Registros de Soportes</h2>
+        <div class="overflow-x-auto rounded-lg shadow-lg">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Soporte</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Solicitante</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Solicitud</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Solicitud</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Solución</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hora Solución</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total General</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jornada Laboral</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Comentarios</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="registrosTableBody" class="bg-white divide-y divide-gray-200">
+                    <!-- Los registros se añadirán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Iframe oculto para el envío del formulario -->
+    <iframe name="hiddenFrame" style="display:none;"></iframe>
+
+    <script>
+        // URL de tu Google Apps Script desplegado
+        const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbziO6HXi-JQzyeeSB1xZyA42wgwOD3Ch7KsLINFp0dCxGn1YEZR5Ti13uLlffh2EJqT/exec";
+
+        // Función para calcular la diferencia de tiempo en formato HH:MM
+        function calcularDiferenciaTiempo(fechaHoraInicioStr, fechaHoraFinStr) {
+            const inicio = new Date(fechaHoraInicioStr);
+            const fin = new Date(fechaHoraFinStr);
+
+            if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
+                return "00:00"; // Retorna 00:00 si las fechas son inválidas
+            }
+
+            let diffMs = fin - inicio; // Diferencia en milisegundos
+
+            // Asegura que la diferencia no sea negativa (si la hora de fin es anterior a la de inicio)
+            if (diffMs < 0) {
+                diffMs = 0;
+            }
+
+            const diffMinutes = Math.floor(diffMs / (1000 * 60));
+            const hours = Math.floor(diffMinutes / 60);
+            const minutes = diffMinutes % 60;
+
+            // Formatea a HH:MM
+            const formattedHours = String(hours).padStart(2, '0');
+            const formattedMinutes = String(minutes).padStart(2, '0');
+
+            return `${formattedHours}:${formattedMinutes}`;
+        }
+
+        // Función para calcular la jornada laboral (solo horas de 8 AM a 5 PM)
+        function calcularJornadaLaboral(fechaInicioStr, horaInicioStr, fechaFinStr, horaFinStr) {
+            const inicio = new Date(`${fechaInicioStr}T${horaInicioStr}:00`);
+            const fin = new Date(`${fechaFinStr}T${horaFinStr}:00`);
+
+            if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
+                return "00:00"; // Retorna 00:00 si las fechas son inválidas
+            }
+
+            let totalMinutes = 0;
+            let current = new Date(inicio);
+
+            // Iterar día por día
+            while (current <= fin) {
+                const dayOfWeek = current.getDay(); // 0 = Domingo, 6 = Sábado
+
+                // Si es fin de semana (Sábado o Domingo), no contamos horas
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    current.setDate(current.getDate() + 1);
+                    current.setHours(0, 0, 0, 0); // Resetear a inicio del día para el siguiente cálculo
+                    continue;
+                }
+
+                // Definir el rango de horario laboral para el día actual
+                const workStart = new Date(current);
+                workStart.setHours(8, 0, 0, 0); // 8 AM
+
+                const workEnd = new Date(current);
+                workEnd.setHours(17, 0, 0, 0); // 5 PM
+
+                let effectiveStart = new Date(current);
+                let effectiveEnd = new Date(current);
+
+                // Ajustar effectiveStart
+                if (current < workStart) {
+                    effectiveStart = workStart;
+                } else {
+                    effectiveStart = current;
+                }
+
+                // Ajustar effectiveEnd
+                if (fin < workEnd) {
+                    effectiveEnd = fin;
+                } else {
+                    effectiveEnd = workEnd;
+                }
+
+                // Si la fecha actual es la fecha de inicio y la fecha de fin es el mismo día
+                if (current.toDateString() === inicio.toDateString() && current.toDateString() === fin.toDateString()) {
+                    if (effectiveEnd > effectiveStart) {
+                        totalMinutes += (effectiveEnd - effectiveStart) / (1000 * 60);
+                    }
+                } else if (current.toDateString() === inicio.toDateString()) { // Es el día de inicio pero no el día de fin
+                     if (workEnd > effectiveStart) {
+                        totalMinutes += (workEnd - effectiveStart) / (1000 * 60);
+                    }
+                } else if (current.toDateString() === fin.toDateString()) { // Es el día de fin pero no el día de inicio
+                     if (effectiveEnd > workStart) {
+                        totalMinutes += (effectiveEnd - workStart) / (1000 * 60);
+                    }
+                } else { // Es un día intermedio completo
+                    if (workEnd > workStart) {
+                        totalMinutes += (workEnd - workStart) / (1000 * 60);
+                    }
+                }
+
+                // Avanzar al siguiente día
+                current.setDate(current.getDate() + 1);
+                current.setHours(0, 0, 0, 0); // Resetear a inicio del día para el siguiente cálculo
+            }
+
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = Math.floor(totalMinutes % 60); // Redondear los minutos hacia abajo
+
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+        }
+
+        // Función para formatear fecha de YYYY-MM-DD a DD-MM-YYYY
+        function formatDateToDDMMYYYY(dateString) {
+            if (!dateString) return '';
+            const [year, month, day] = dateString.split('-');
+            return `${day}-${month}-${year}`;
+        }
+
+        // Función para formatear hora de HH:MM (24h) a HH:MM AM/PM
+        function formatTimeToAMPM(timeString) {
+            if (!timeString) return '';
+            const [hours, minutes] = timeString.split(':');
+            let h = parseInt(hours, 10);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            h = h ? h : 12; // La hora '0' (medianoche) debe ser '12 AM'
+            const formattedHours = String(h).padStart(2, '0');
+            const formattedMinutes = String(minutes).padStart(2, '0');
+            return `${formattedHours}:${formattedMinutes} ${ampm}`;
+        }
+
+
+        // Obtener elementos del DOM
+        const mainActionButton = document.getElementById('mainActionButton');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const exportarBtn = document.getElementById('exportarBtn');
+        const limpiarBtn = document.getElementById('limpiarBtn');
+        const registrosTableBody = document.getElementById('registrosTableBody');
+        const statusMessage = document.getElementById('statusMessage');
+        const statusMessageTitle = document.getElementById('statusMessageTitle');
+        const statusMessageText = document.getElementById('statusMessageText');
+
+
+        // Referencias a los campos de entrada
+        const nombreSoporteInput = document.getElementById('nombreSoporte');
+        const solicitanteInput = document.getElementById('solicitante');
+        const usuarioInput = document.getElementById('usuario');
+        const tipoInput = document.getElementById('tipo');
+        const fechaSolicitudInput = document.getElementById('fechaSolicitud');
+        const horaSolicitudInput = document.getElementById('horaSolicitud');
+        const fechaSolucionInput = document.getElementById('fechaSolucion');
+        const horaSolucionInput = document.getElementById('horaSolucion');
+        const comentariosInput = document.getElementById('comentarios');
+
+        // Array para almacenar los registros
+        let registros = [];
+        let editingIndex = -1; // -1 significa que no se está editando ningún registro
+
+        // Función para mostrar mensajes de estado/validación
+        function showStatusMessage(type, title, message) {
+            statusMessage.classList.remove('hidden', 'bg-red-100', 'border-red-400', 'text-red-700', 'bg-green-100', 'border-green-400', 'text-green-700');
+            statusMessageTitle.textContent = title;
+            statusMessageText.textContent = message;
+
+            if (type === 'error') {
+                statusMessage.classList.add('bg-red-100', 'border-red-400', 'text-red-700');
+            } else if (type === 'success') {
+                statusMessage.classList.add('bg-green-100', 'border-green-400', 'text-green-700');
+            }
+            // Ocultar el mensaje después de 5 segundos
+            setTimeout(() => {
+                statusMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Cargar registros del almacenamiento local al iniciar la aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedRegistros = localStorage.getItem('soportesRegistros');
+            if (storedRegistros) {
+                registros = JSON.parse(storedRegistros);
+                renderizarRegistros();
+            }
+            // Establecer la fecha actual como valor predeterminado para los campos de fecha
+            const today = new Date().toISOString().split('T')[0];
+            fechaSolicitudInput.value = today;
+            fechaSolucionInput.value = today;
+        });
+
+        // Event listener para el botón de acción principal (Registrar/Actualizar)
+        mainActionButton.addEventListener('click', async () => {
+            const nombreSoporte = nombreSoporteInput.value.trim();
+            const solicitante = solicitanteInput.value.trim();
+            const usuario = usuarioInput.value.trim();
+            const tipo = tipoInput.value.trim();
+            const fechaSolicitud = fechaSolicitudInput.value;
+            const horaSolicitud = horaSolicitudInput.value;
+            const fechaSolucion = fechaSolucionInput.value;
+            const horaSolucion = horaSolucionInput.value;
+            const comentarios = comentariosInput.value.trim();
+
+            let errors = []; // Array para recolectar mensajes de error
+
+            // Validación de campos requeridos
+            if (!nombreSoporte || nombreSoporte === "") {
+                errors.push("El campo 'Nombre Soporte' es obligatorio.");
+            }
+            if (!fechaSolicitud) {
+                errors.push("El campo 'Fecha Solicitud' es obligatorio.");
+            }
+            if (!horaSolicitud) {
+                errors.push("El campo 'Hora Solicitud' es obligatorio.");
+            }
+            if (!fechaSolucion) {
+                errors.push("El campo 'Fecha Solución' es obligatorio.");
+            }
+            if (!horaSolucion) {
+                errors.push("El campo 'Hora Solución' es obligatorio.");
+            }
+
+            // Unir fecha y hora para los cálculos y validación
+            const fechaHoraSolicitudStr = `${fechaSolicitud}T${horaSolicitud}:00`;
+            const fechaHoraSolucionStr = `${fechaSolucion}T${horaSolucion}:00`;
+
+            const inicio = new Date(fechaHoraSolicitudStr);
+            const fin = new Date(fechaHoraSolucionStr);
+
+            // Validación: Hora Solución no puede ser anterior a Hora Solicitud
+            if (fechaSolicitud && horaSolicitud && fechaSolucion && horaSolucion && fin < inicio) {
+                errors.push("La Hora de Solución no puede ser anterior a la Hora de Solicitud.");
+            }
+
+            // Si hay errores, mostrarlos y detener la ejecución
+            if (errors.length > 0) {
+                showStatusMessage('error', '¡Error de validación!', errors.join('<br>'));
+                return;
+            }
+
+            // Ocultar mensaje de validación si no hay errores antes de continuar
+            statusMessage.classList.add('hidden');
+
+            // Calcular Total General y Jornada Laboral
+            const totalGeneral = calcularDiferenciaTiempo(fechaHoraSolicitudStr, fechaHoraSolucionStr);
+            const jornadaLaboral = calcularJornadaLaboral(fechaSolicitud, horaSolicitud, fechaSolucion, horaSolucion);
+
+            const nuevoRegistro = {
+                nombreSoporte,
+                solicitante,
+                usuario,
+                tipo,
+                fechaSolicitud, // Se guarda en formato YYYY-MM-DD para coherencia y cálculos
+                horaSolicitud,  // Se guarda en formato HH:MM (24h) para coherencia y cálculos
+                fechaSolucion,  // Se guarda en formato YYYY-MM-DD para coherencia y cálculos
+                horaSolucion,   // Se guarda en formato HH:MM (24h) para coherencia y cálculos
+                totalGeneral,
+                jornadaLaboral,
+                comentarios
+            };
+
+            // Para depuración en el navegador:
+            console.log("Datos a enviar a Google Sheets:", JSON.stringify(nuevoRegistro));
+
+
+            if (editingIndex === -1) {
+                // Añadir nuevo registro localmente
+                registros.push(nuevoRegistro);
+            } else {
+                // Actualizar registro existente localmente
+                registros[editingIndex] = nuevoRegistro;
+                editingIndex = -1; // Resetear estado de edición
+                mainActionButton.textContent = 'Registrar Soporte';
+                cancelEditBtn.classList.add('hidden');
+            }
+
+            guardarRegistros(); // Guardar en almacenamiento local
+            renderizarRegistros(); // Actualizar la tabla
+
+            // **** Integración con Google Sheets usando formulario oculto ****
+            const form = document.createElement('form');
+            form.action = GOOGLE_APPS_SCRIPT_URL;
+            form.method = 'POST';
+            form.target = 'hiddenFrame'; // El nombre del iframe oculto
+            form.style.display = 'none';
+
+            // Añadir campos ocultos al formulario
+            for (const key in nuevoRegistro) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key; // El nombre debe coincidir con la clave en nuevoRegistro
+                input.value = nuevoRegistro[key];
+                form.appendChild(input);
+            }
+
+            document.body.appendChild(form); // Añadir el formulario al DOM
+            form.submit(); // Enviar el formulario
+
+            // Manejar la respuesta del Apps Script a través del iframe (si es necesario)
+            // Esto es más complejo ya que el Apps Script devolvería HTML si no se maneja bien,
+            // pero si devuelve JSON, necesitaríamos parsear el contenido del iframe.
+            // Para simplificar, asumiremos que si llega aquí, el envío se intenta.
+            showStatusMessage('success', '¡Intento de Envío!', 'Registro guardado localmente. Se intentó enviar a Google Sheets. Revisa los registros de Apps Script para confirmar el éxito.');
+            limpiarFormulario(); // Limpiar campos del formulario después del intento de envío
+            document.body.removeChild(form); // Eliminar el formulario temporal
+        });
+
+        // Event listener para el botón Cancelar Edición
+        cancelEditBtn.addEventListener('click', () => {
+            editingIndex = -1; // Resetear estado de edición
+            mainActionButton.textContent = 'Registrar Soporte';
+            cancelEditBtn.classList.add('hidden');
+            limpiarFormulario(); // Limpiar campos del formulario
+            statusMessage.classList.add('hidden'); // Ocultar mensaje de validación al cancelar
+        });
+
+        // Event listener para el botón Limpiar Formulario
+        limpiarBtn.addEventListener('click', () => {
+            limpiarFormulario();
+            statusMessage.classList.add('hidden'); // Ocultar mensaje de validación al limpiar
+        });
+
+        // Función para limpiar el formulario
+        function limpiarFormulario() {
+            nombreSoporteInput.value = '';
+            solicitanteInput.value = '';
+            usuarioInput.value = '';
+            tipoInput.value = '';
+            fechaSolicitudInput.value = new Date().toISOString().split('T')[0]; // Establecer a la fecha actual
+            horaSolicitudInput.value = '';
+            fechaSolucionInput.value = new Date().toISOString().split('T')[0]; // Establecer a la fecha actual
+            horaSolucionInput.value = '';
+            comentariosInput.value = '';
+        }
+
+        // Función para guardar los registros en el almacenamiento local del navegador
+        function guardarRegistros() {
+            localStorage.setItem('soportesRegistros', JSON.stringify(registros));
+        }
+
+        // Función para renderizar los registros en la tabla
+        function renderizarRegistros() {
+            registrosTableBody.innerHTML = ''; // Limpiar la tabla antes de renderizar
+            registros.forEach((registro, index) => {
+                const row = registrosTableBody.insertRow();
+                row.className = 'hover:bg-gray-100'; // Estilo para resaltar al pasar el mouse
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${registro.nombreSoporte}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${registro.solicitante}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${registro.usuario}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${registro.tipo}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDateToDDMMYYYY(registro.fechaSolicitud)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatTimeToAMPM(registro.horaSolicitud)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatDateToDDMMYYYY(registro.fechaSolucion)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatTimeToAMPM(registro.horaSolucion)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${registro.totalGeneral}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${registro.jornadaLaboral}</td>
+                    <td class="px-6 py-4 whitespace-normal text-sm text-gray-900">${registro.comentarios}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editarRegistro(${index})" class="text-indigo-600 hover:text-indigo-900 mr-4">Editar</button>
+                        <button onclick="eliminarRegistro(${index})" class="text-red-600 hover:text-red-900">Eliminar</button>
+                    </td>
+                `;
+            });
+        }
+
+        // Función para editar un registro específico
+        window.editarRegistro = function(index) {
+            const recordToEdit = registros[index];
+
+            // Rellenar el formulario con los datos del registro
+            nombreSoporteInput.value = recordToEdit.nombreSoporte;
+            solicitanteInput.value = recordToEdit.solicitante;
+            usuarioInput.value = recordToEdit.usuario;
+            tipoInput.value = recordToEdit.tipo;
+            fechaSolicitudInput.value = recordToEdit.fechaSolicitud;
+            horaSolicitudInput.value = recordToEdit.horaSolicitud;
+            fechaSolucionInput.value = recordToEdit.fechaSolucion;
+            horaSolucionInput.value = recordToEdit.horaSolucion;
+            comentariosInput.value = recordToEdit.comentarios;
+
+            editingIndex = index; // Establecer el índice del registro que se está editando
+            mainActionButton.textContent = 'Actualizar Soporte'; // Cambiar texto del botón
+            cancelEditBtn.classList.remove('hidden'); // Mostrar botón de cancelar
+            statusMessage.classList.add('hidden'); // Ocultar mensaje de validación al editar
+        };
+
+        // Función para eliminar un registro específico
+        window.eliminarRegistro = function(index) {
+            if (confirm("¿Está seguro de que desea eliminar este registro? Esta acción es solo local y no afectará los registros ya enviados a Google Sheets.")) {
+                registros.splice(index, 1); // Eliminar el registro del array
+                guardarRegistros(); // Guardar cambios en el almacenamiento local
+                renderizarRegistros(); // Actualizar la tabla
+                showStatusMessage('success', '¡Eliminado!', 'Registro eliminado localmente.');
+
+                // Si el registro eliminado estaba siendo editado, reiniciar el formulario
+                if (editingIndex === index) {
+                    limpiarFormulario();
+                    editingIndex = -1;
+                    mainActionButton.textContent = 'Registrar Soporte';
+                    cancelEditBtn.classList.add('hidden');
+                }
+                // Si el índice de edición es mayor que el índice eliminado, ajustarlo
+                else if (editingIndex > index) {
+                    editingIndex--; // Ajustar el índice si un registro anterior fue eliminado
+                }
+            }
+        };
+
+        // Event listener para el botón Exportar
+        exportarBtn.addEventListener('click', () => {
+            if (registros.length === 0) {
+                showStatusMessage('error', 'Error de Exportación:', "No hay registros para exportar.");
+                return;
+            }
+            statusMessage.classList.add('hidden'); // Ocultar cualquier mensaje de error anterior
+
+            // Datos que se exportarán
+            const dataToExport = registros.map(registro => ({
+                'Nombre Soporte': registro.nombreSoporte,
+                'Solicitante': registro.solicitante,
+                'Usuario': registro.usuario,
+                'Tipo': registro.tipo,
+                'Fecha Solicitud': formatDateToDDMMYYYY(registro.fechaSolicitud), // Formato DD-MM-YYYY para Excel
+                'Hora Solicitud': formatTimeToAMPM(registro.horaSolicitud),       // Formato AM/PM para Excel
+                'Fecha Solución': formatDateToDDMMYYYY(registro.fechaSolucion),   // Formato DD-MM-YYYY para Excel
+                'Hora Solución': formatTimeToAMPM(registro.horaSolucion),         // Formato AM/PM para Excel
+                'Total General': registro.totalGeneral,
+                'Jornada Laboral': registro.jornadaLaboral,
+                'Comentarios': registro.comentarios
+            }));
+
+            // Crear un nuevo libro de trabajo y hoja
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+
+            // Añadir la hoja al libro
+            XLSX.utils.book_append_sheet(wb, ws, "Soportes");
+
+            // Escribir el archivo XLSX
+            XLSX.writeFile(wb, "registros_soportes.xlsx");
+            showStatusMessage('success', '¡Exportado!', 'Datos exportados a registros_soportes.xlsx.');
+        });
+
+    </script>
+</body>
+</html>
