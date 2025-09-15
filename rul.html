@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteo de Tómbola</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            width: 100%;
+        }
+
+        .raffle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        #wheel-container {
+            position: relative;
+            width: min(80vw, 400px);
+            height: min(80vw, 400px);
+            margin: 0 auto;
+        }
+
+        #raffle-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #cbd5e1;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            transition: transform 6s cubic-bezier(0.25, 0.1, 0.25, 1);
+            will-change: transform;
+        }
+
+        #indicator {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #e92e26;
+            z-index: 10;
+        }
+        
+        #indicator::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #e92e26;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        #spin-button {
+            padding: 15px 30px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background-color: #867e76;
+            color: #fff;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(134, 126, 118, 0.4);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        #spin-button:hover {
+            background-color: #716a62;
+            transform: translateY(-2px);
+        }
+
+        #spin-button.disabled-empty {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .participants-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .action-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        #participant-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        #participant-input:focus {
+            outline: none;
+            border-color: #867e76;
+        }
+
+        .button-primary {
+            padding: 10px 20px;
+            background-color: #e92e26;
+            color: #fff;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button-primary:hover {
+            background-color: #c0241f;
+        }
+
+        .button-secondary {
+            padding: 10px 20px;
+            background-color: #f8fafc;
+            color: #1e293b;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .button-secondary:hover {
+            background-color: #e2e8f0;
+        }
+
+        #participants-list {
+            display: none; /* Ocultar la lista de participantes */
+        }
+
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .participant-item:last-child {
+            border-bottom: none;
+        }
+
+        .remove-button {
+            background: none;
+            border: none;
+            color: #867e76;
+            cursor: pointer;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .remove-button:hover {
+            opacity: 1;
+        }
+
+        #winner-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            will-change: transform, opacity;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+        }
+
+        #winner-name {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #e92e26;
+            margin-bottom: 10px;
+        }
+        
+        #congratulations-text {
+            font-size: 1.5rem;
+            color: #867e76;
+            margin-top: 10px;
+        }
+
+        .close-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #867e76;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .close-button:hover {
+            background-color: #716a62;
+        }
+
+        /* Confetti effect */
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #fff;
+            opacity: 0;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) rotateZ(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotateZ(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Estilos para la tabla de ganadores */
+        #winners-list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        #winners-list-table th, #winners-list-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        #winners-list-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        #winners-list-table tr:last-child td {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center p-5 min-h-screen">
+
+    <div class="container">
+        <div class="header">
+            <img src="https://caribetrans.com/wp-content/themes/caribetrans2/images/logo-es.png" alt="Caribetrans Logo" class="mx-auto mb-4 w-40">
+            <h1 class="text-4xl font-bold">Tómbola de la Suerte</h1>
+            <p class="mt-2 text-lg text-gray-600">Introduce los nombres o carga un archivo y gira la rueda para el sorteo.</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Sección de entrada en la parte superior -->
+            <div class="participants-section w-full max-w-lg mx-auto">
+                <div class="action-group">
+                    <div class="input-group">
+                        <input type="text" id="participant-input" placeholder="Nombre del participante" class="flex-grow rounded-xl p-3 border-2 border-gray-300 focus:border-red-500 transition-all">
+                        <button id="add-button" class="button-primary font-semibold">Añadir</button>
+                    </div>
+                    <label for="file-input" class="button-secondary text-center cursor-pointer font-semibold">
+                        Cargar nombres desde archivo (.txt)
+                    </label>
+                    <input type="file" id="file-input" accept=".txt" class="hidden">
+                    <button id="reset-button" class="button-secondary font-semibold">Reiniciar todo</button>
+                </div>
+                <!-- Mensaje para la lista de participantes -->
+                <div id="participant-status" class="bg-gray-50 rounded-xl p-4 border border-gray-200 w-full mt-4" role="status" aria-live="polite">
+                    <p class="text-gray-500 text-sm text-center">Añade o carga nombres para empezar.</p>
+                </div>
+            </div>
+
+            <!-- Contenedor principal para la tómbola y la lista de ganadores -->
+            <div class="flex flex-col lg:flex-row gap-8 w-full mt-8 items-start justify-center">
+                <!-- Tómbola y botón a la izquierda -->
+                <div class="raffle-container flex-1 flex flex-col items-center">
+                    <div id="wheel-container">
+                        <canvas id="raffle-wheel"></canvas>
+                        <div id="indicator"></div>
+                    </div>
+                    <button id="spin-button" class="bg-gray-700 text-white px-8 py-4 rounded-full font-bold shadow-lg hover:bg-gray-800 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed mt-8" aria-label="Girar la tómbola para elegir un ganador">Girar Tómbola</button>
+                </div>
+                
+                <!-- Sección para la lista de ganadores a la derecha -->
+                <div id="winners-section" class="flex-1 w-full lg:w-auto">
+                    <h2 class="text-2xl font-bold text-center mb-4">Ganadores</h2>
+                    <div id="winners-list" class="bg-gray-50 rounded-xl p-4 border border-gray-200 min-h-[100px] overflow-y-auto w-full" role="log" aria-live="polite">
+                        <p class="text-gray-500 text-sm text-center">Los ganadores aparecerán aquí.</p>
+                    </div>
+                    <button id="clear-winners-button" class="button-secondary mt-4 w-full font-semibold hidden">Limpiar lista de ganadores</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para el ganador -->
+    <div id="winner-modal" role="dialog" aria-modal="true" aria-labelledby="congratulations-text">
+        <div class="modal-content">
+            <h2 id="congratulations-text">¡Tenemos un ganador!</h2>
+            <h1 id="winner-name" class="text-4xl font-bold mt-2 text-red-600"></h1>
+            <button id="close-modal-button" class="bg-gray-700 text-white mt-5 px-6 py-2 rounded-xl hover:bg-gray-800" aria-label="Cerrar el cuadro de diálogo">Cerrar</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // Variables de la aplicación para el almacenamiento local
+        let participants = []; 
+        let eligibleParticipants = []; 
+        const winners = [];
+        let lastWinnerIndex = -1;
+        let spinning = false;
+        
+        // Elementos del DOM
+        const participantInput = document.getElementById('participant-input');
+        const addButton = document.getElementById('add-button');
+        const fileInput = document.getElementById('file-input');
+        const participantStatus = document.getElementById('participant-status');
+        const winnersList = document.getElementById('winners-list');
+        const spinButton = document.getElementById('spin-button');
+        const winnerModal = document.getElementById('winner-modal');
+        const winnerNameDisplay = document.getElementById('winner-name');
+        const closeModalButton = document.getElementById('close-modal-button');
+        const clearWinnersButton = document.getElementById('clear-winners-button');
+        const resetButton = document.getElementById('reset-button');
+        const confettiContainer = document.body;
+
+        const canvas = document.getElementById('raffle-wheel');
+        const ctx = canvas.getContext('2d');
+        let wheelRotation = 0;
+        const colors = ['#e92e26', '#867e76', '#3b82f6', '#10b981', '#f59e0b', '#06b6d4', '#6366f1'];
+        
+        // --- Funciones para la Tómbola ---
+        function renderWheel() {
+            const numParticipants = eligibleParticipants.length;
+            if (numParticipants === 0) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            const arcSize = 2 * Math.PI / numParticipants;
+            const radius = canvas.width / 2;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            eligibleParticipants.forEach((participant, index) => {
+                const startAngle = index * arcSize;
+                const endAngle = (index + 1) * arcSize;
+                const color = colors[index % colors.length];
+
+                ctx.beginPath();
+                ctx.fillStyle = color;
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.lineTo(centerX, centerY);
+                ctx.fill();
+
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + arcSize / 2);
+                ctx.textAlign = 'right';
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px Inter';
+                ctx.fillText(participant, radius - 20, 0); 
+                ctx.restore();
+            });
+        }
+
+        function updateWheelSize() {
+            const size = Math.min(window.innerWidth * 0.8, 400);
+            canvas.width = size;
+            canvas.height = size;
+            renderWheel();
+        }
+
+        function updateParticipantStatus(message = '') {
+            if (message) {
+                participantStatus.textContent = message;
+            } else if (participants.length > 0) {
+                participantStatus.textContent = `Lista cargada: ${participants.length} nombres. Quedan por sortear: ${eligibleParticipants.length}`;
+            } else {
+                participantStatus.textContent = `Añade o carga nombres para empezar.`;
+            }
+        }
+        
+        function renderWinnersList() {
+            winnersList.innerHTML = '';
+            if (winners.length === 0) {
+                const p = document.createElement('p');
+                p.className = 'text-gray-500 text-sm text-center';
+                p.textContent = 'Los ganadores aparecerán aquí.';
+                winnersList.appendChild(p);
+                clearWinnersButton.classList.add('hidden');
+                return;
+            }
+
+            clearWinnersButton.classList.remove('hidden');
+            const table = document.createElement('table');
+            table.id = 'winners-list-table';
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Ganador</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+            winners.forEach(winner => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${winner.name}</td>
+                    <td>${winner.timestamp.toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            winnersList.appendChild(table);
+        }
+
+        function checkSpinButtonState() {
+            if (eligibleParticipants.length === 0) {
+                spinButton.disabled = true;
+                spinButton.textContent = 'No hay más participantes';
+                spinButton.classList.add('disabled-empty');
+            } else {
+                spinButton.disabled = false;
+                spinButton.textContent = 'Girar Tómbola';
+                spinButton.classList.remove('disabled-empty');
+            }
+        }
+
+        function triggerConfetti() {
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = `${Math.random() * 100}vw`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                confettiContainer.appendChild(confetti);
+            }
+            setTimeout(() => {
+                document.querySelectorAll('.confetti-piece').forEach(c => c.remove());
+            }, 3000);
+        }
+
+        // --- Event Listeners ---
+        addButton.addEventListener('click', () => {
+            const name = participantInput.value.trim();
+            if (name !== '' && !participants.includes(name)) {
+                participants.push(name);
+                eligibleParticipants.push(name);
+                participantInput.value = '';
+                updateParticipantStatus();
+                renderWheel();
+                checkSpinButtonState();
+            }
+        });
+
+        participantInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addButton.click();
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.txt')) {
+                updateParticipantStatus('Error: Por favor, carga un archivo .txt');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const text = event.target.result;
+                const newNames = text.split('\n').map(name => name.trim()).filter(name => name !== '');
+                
+                if (newNames.length > 0) {
+                    participants = [...newNames];
+                    eligibleParticipants = [...newNames];
+                    updateParticipantStatus(`Archivo cargado con éxito. ${newNames.length} nombres añadidos.`);
+                    renderWheel();
+                    checkSpinButtonState();
+                } else {
+                    updateParticipantStatus('El archivo .txt está vacío o no contiene nombres válidos.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        spinButton.addEventListener('click', () => {
+            if (spinning || eligibleParticipants.length === 0) return;
+            spinning = true;
+            spinButton.disabled = true;
+            
+            lastWinnerIndex = Math.floor(Math.random() * eligibleParticipants.length);
+            const winnerName = eligibleParticipants[lastWinnerIndex];
+
+            const arcSizeDegrees = 360 / eligibleParticipants.length;
+            const centerAngleOfWinner = (lastWinnerIndex * arcSizeDegrees) + (arcSizeDegrees / 2);
+            const finalRotation = 360 * 5 + (270 - centerAngleOfWinner);
+
+            const wheel = document.getElementById('raffle-wheel');
+            wheel.style.transition = 'transform 6s cubic-bezier(0.25, 0.1, 0.25, 1)';
+            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            
+            wheel.addEventListener('transitionend', () => {
+                spinning = false;
+                wheelRotation = finalRotation % 360;
+                wheel.style.transition = 'none';
+                wheel.style.transform = `rotate(${wheelRotation}deg)`;
+
+                winnerNameDisplay.textContent = winnerName;
+                winnerModal.style.display = 'flex';
+                setTimeout(() => {
+                    winnerModal.querySelector('.modal-content').style.transform = 'scale(1)';
+                    winnerModal.querySelector('.modal-content').style.opacity = '1';
+                    closeModalButton.focus();
+                }, 50);
+                
+                triggerConfetti();
+            }, { once: true });
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            winnerModal.style.display = 'none';
+            winnerModal.querySelector('.modal-content').style.transform = 'scale(0.8)';
+            winnerModal.querySelector('.modal-content').style.opacity = '0';
+            
+            const winnerName = eligibleParticipants[lastWinnerIndex];
+            winners.push({ name: winnerName, timestamp: new Date() });
+            eligibleParticipants.splice(lastWinnerIndex, 1);
+            
+            updateParticipantStatus();
+            renderWinnersList();
+            renderWheel();
+            checkSpinButtonState();
+            spinButton.focus();
+        });
+
+        clearWinnersButton.addEventListener('click', () => {
+            winners.length = 0;
+            eligibleParticipants = [...participants];
+            updateParticipantStatus();
+            renderWinnersList();
+            renderWheel();
+            checkSpinButtonState();
+        });
+
+        resetButton.addEventListener('click', () => {
+            participants.length = 0;
+            eligibleParticipants.length = 0;
+            winners.length = 0;
+            updateParticipantStatus();
+            renderWinnersList();
+            renderWheel();
+            checkSpinButtonState();
+        });
+
+        window.addEventListener('resize', updateWheelSize);
+        updateWheelSize();
+        updateParticipantStatus();
+        checkSpinButtonState();
+        renderWinnersList();
+    </script>
+</body>
+</html>
